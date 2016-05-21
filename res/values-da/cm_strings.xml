@@ -16,9 +16,11 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Blacklist preferences -->
   <string name="blacklist_title">Blokeret opkaldsliste</string>
   <string name="blacklist_summary_disabled">Deaktiveret</string>
   <string name="blacklist_summary">Du vil ikke modtage indgående opkald eller beskeder fra telefonnumre på den blokeret opkaldsliste</string>
+  <!-- Blacklist notifications -->
   <string name="blacklist_call_notification">Blokerede et opkald fra %s</string>
   <string name="blacklist_call_notification_private_number">Blokerede et opkald fra et privat nummer</string>
   <string name="blacklist_call_notification_unknown_number">Blokerede et opkald fra et ukendt nummer %s</string>
@@ -29,4 +31,8 @@
   <string name="blacklist_message_notification_multiple"><xliff:g id="count">%d</xliff:g> beskeder blev blokeret</string>
   <string name="blacklist_notification_list_private">Privat</string>
   <string name="unblock_number">Fjern blokering</string>
+  <string name="unblock_contact">Fjern blokeringen af kontakt</string>
+  <string name="call_waiting_dialog_title">Svar %s</string>
+  <string name="call_waiting_dialog_hold_call">Sæt aktuelle opkald i venteposition</string>
+  <string name="call_waiting_dialog_end_call">Afslut aktuelle opkald</string>
 </resources>

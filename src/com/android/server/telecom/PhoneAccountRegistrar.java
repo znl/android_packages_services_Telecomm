@@ -236,6 +236,10 @@ public final class PhoneAccountRegistrar {
         for (int i = 0; i < mState.accounts.size(); i++) {
             String id = mState.accounts.get(i).getAccountHandle().getId();
 
+            if (id == null || id.equals("null") || TextUtils.isEmpty(id)) {
+                continue;
+            }
+
             // emergency account present return it
             if (id.equals("E")) {
                 Log.i(this, "getUserSelVoicePhoneAccount, emergency account ");
@@ -509,7 +513,9 @@ public final class PhoneAccountRegistrar {
     public List<PhoneAccountHandle> getCallCapablePhoneAccounts(
             String uriScheme, boolean includeDisabledAccounts) {
         return getPhoneAccountHandles(
-                PhoneAccount.CAPABILITY_CALL_PROVIDER, uriScheme, null, includeDisabledAccounts);
+                PhoneAccount.CAPABILITY_CALL_PROVIDER,
+                PhoneAccount.CAPABILITY_EMERGENCY_CALLS_ONLY /*excludedCapabilities*/,
+                uriScheme, null, includeDisabledAccounts);
     }
 
     /**
@@ -746,22 +752,42 @@ public final class PhoneAccountRegistrar {
         return null;
     }
 
+    private List<PhoneAccountHandle> getPhoneAccountHandles(
+            int capabilities,
+            String uriScheme,
+            String packageName,
+            boolean includeDisabledAccounts) {
+        return getPhoneAccountHandles(capabilities, 0 /*excludedCapabilities*/, uriScheme,
+                packageName, includeDisabledAccounts);
+    }
+
     /**
      * Returns a list of phone account handles with the specified capabilities, uri scheme,
      * and package name.
      */
     private List<PhoneAccountHandle> getPhoneAccountHandles(
             int capabilities,
+            int excludedCapabilities,
             String uriScheme,
             String packageName,
             boolean includeDisabledAccounts) {
         List<PhoneAccountHandle> handles = new ArrayList<>();
 
         for (PhoneAccount account : getPhoneAccounts(
-                capabilities, uriScheme, packageName, includeDisabledAccounts)) {
+                capabilities, excludedCapabilities, uriScheme, packageName,
+                includeDisabledAccounts)) {
             handles.add(account.getAccountHandle());
         }
         return handles;
+    }
+
+    private List<PhoneAccount> getPhoneAccounts(
+            int capabilities,
+            String uriScheme,
+            String packageName,
+            boolean includeDisabledAccounts) {
+        return getPhoneAccounts(capabilities, 0 /*excludedCapabilities*/, uriScheme, packageName,
+                includeDisabledAccounts);
     }
 
     /**
@@ -769,12 +795,15 @@ public final class PhoneAccountRegistrar {
      * URI scheme, within the specified package name.
      *
      * @param capabilities Capabilities which the {@code PhoneAccount} must have. Ignored if 0.
+     * @param excludedCapabilities Capabilities which the {@code PhoneAccount} must not have.
+     *                             Ignored if 0.
      * @param uriScheme URI schemes the PhoneAccount must handle.  {@code null} bypasses the
      *                  URI scheme check.
      * @param packageName Package name of the PhoneAccount. {@code null} bypasses packageName check.
      */
     private List<PhoneAccount> getPhoneAccounts(
             int capabilities,
+            int excludedCapabilities,
             String uriScheme,
             String packageName,
             boolean includeDisabledAccounts) {
@@ -782,6 +811,11 @@ public final class PhoneAccountRegistrar {
         for (PhoneAccount m : mState.accounts) {
             if (!(m.isEnabled() || includeDisabledAccounts)) {
                 // Do not include disabled accounts.
+                continue;
+            }
+
+            if ((m.getCapabilities() & excludedCapabilities) != 0) {
+                // If an excluded capability is present, skip.
                 continue;
             }
 
